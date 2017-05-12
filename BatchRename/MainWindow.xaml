@@ -1,0 +1,120 @@
+﻿<Window x:Class="BatchRename.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BatchRename"
+        local:WindowHelper.ShowIcon="False"
+        xmlns:theme="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero"
+        mc:Ignorable="d"
+        Title="Rename" Height="400" MinWidth="450" Width="600">
+    <Window.Resources>
+        <SolidColorBrush x:Key="TextBox.Static.Border" Color="#FFABAdB3"/>
+        <SolidColorBrush x:Key="TextBox.MouseOver.Border" Color="#FF7EB4EA"/>
+        <SolidColorBrush x:Key="TextBox.Focus.Border" Color="#FF569DE5"/>
+        <local:BoolToVisibilityConverter NotVisibleValue="Collapsed" x:Key="trueToVisible" />
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="1" ClipToBounds="True" SnapsToDevicePixels="True">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <ListView x:Name="List01" Grid.Column="1" BorderThickness="0,0,0,0"
+                      Background="#FFF8F8F8" Style="{StaticResource LightListViewStyle}">
+            </ListView>
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <theme:SystemDropShadowChrome Grid.RowSpan="2" Margin="-8,-8,0,0" Color="#71000000" IsHitTestVisible="False"/>
+                <ListView x:Name="List00" BorderThickness="0" Grid.Row="1"
+                      SelectionChanged="ExtensionSelectionChanged" MinWidth="120"
+                      Style="{StaticResource PipeLightListViewStyle}">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <ContentControl Content="{Binding Extension}"/>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+                <Button Grid.Row="0" Click="OpenFolderBtnClick" Style="{StaticResource FloatBtnStyle}" Content="Open" Padding="12,7" BorderThickness="0"/>
+            </Grid>
+        </Grid>
+        <StackPanel Orientation="Vertical" Grid.Row="2" Background="#FFEEEEEE">
+            <Grid Visibility="{Binding IsChecked, ElementName=ByTypesRadioBtn,Converter={StaticResource trueToVisible}}">
+                <Grid>
+                    <Grid.Style>
+                        <Style TargetType="{x:Type Grid}">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ElementName=ExtsList, Path=Items.Count}" Value="0">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Grid.Style>
+                    <TextBlock Text="Extension Empty" Foreground="DimGray" Margin="4,0"/>
+                </Grid>
+                <ItemsControl x:Name="ExtsList" Margin="0,4,0,0">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="{x:Type local:CheckableExtItem}">
+                            <CheckBox Margin="2,2,7,2" Content="{Binding Extension}" IsChecked="{Binding IsChecked}"
+                                  Style="{StaticResource SimpleCheckBoxStyle}" VerticalAlignment="Center"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Grid>
+            <WrapPanel Margin="4">
+                <TextBox x:Name="NewExtTB" MinWidth="100" VerticalContentAlignment="Center" Margin="0,2,4,2"
+                         BorderThickness="0,0,0,2" Background="{x:Null}">
+                    <TextBox.Template>
+                        <ControlTemplate TargetType="{x:Type TextBox}">
+                            <Border x:Name="border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
+                                <Grid>
+                                    <TextBlock x:Name="PART_Hint" Text="New Extension" VerticalAlignment="Center" Margin="2,0" Foreground="DimGray" Visibility="Collapsed"/>
+                                    <ScrollViewer x:Name="PART_ContentHost" Focusable="false" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"/>
+                                </Grid>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="Text" Value="">
+                                    <Setter Property="Visibility" TargetName="PART_Hint" Value="Visible" />
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="false">
+                                    <Setter Property="Opacity" TargetName="border" Value="0.56"/>
+                                </Trigger>
+                                <Trigger Property="IsMouseOver" Value="true">
+                                    <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource TextBox.MouseOver.Border}"/>
+                                </Trigger>
+                                <Trigger Property="IsKeyboardFocused" Value="true">
+                                    <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource TextBox.Focus.Border}"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </TextBox.Template>
+                </TextBox>
+                <RadioButton x:Name="ByTypesRadioBtn" Style="{StaticResource WindowsTenRadioButtonLightStyle}" Content="SelectedTypes" Margin="0,2,7,2"/>
+                <RadioButton Style="{StaticResource WindowsTenRadioButtonLightStyle}" Content="SelectedItems" Margin="0,2,7,2" IsChecked="True"/>
+                <ToggleButton x:Name="DebugToggle" IsChecked="True" Content="Debug" BorderThickness="0,0,0,2" Margin="0,2,7,2" Padding="12,7"/>
+                <Button Content="Rename extension" Style="{StaticResource FloatBtnStyle}" 
+                    Padding="7,8" BorderThickness="0" Click="RenameExtClick" Margin="0,2,7,2"/>
+                <Button x:Name="UndoBtn" IsEnabled="False" Content="Undo" Style="{StaticResource FloatBtnStyle}" 
+                    Padding="7,8" MinWidth="60" BorderThickness="0" Margin="0,2" Click="UndoBtnClick"/>
+            </WrapPanel>
+            <WrapPanel Margin="4" Visibility="Collapsed">
+                <TextBox x:Name="RegexTB" MinWidth="120" VerticalContentAlignment="Center"/>
+                <Button Content="Regex rename" Padding="7" BorderThickness="0" />
+            </WrapPanel>
+        </StackPanel>
+    </Grid>
+</Window>
